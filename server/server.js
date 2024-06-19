@@ -30,6 +30,12 @@ app.get('/', (req, res) => {
   console.log(req.headers)
 });
 
+// use predefined routes
+const gameRouter = require('./routes/game')
+const userRouter = require('./routes/user')
+app.use('/game', gameRouter)
+app.use('/user', userRouter)
+
 // socket.io connection
 io.on('connection', (socket) => {
   console.log("Connected to socket!")
@@ -44,6 +50,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// host server
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
