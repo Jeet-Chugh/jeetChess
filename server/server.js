@@ -33,8 +33,8 @@ app.get('/', (req, res) => {
 // use predefined routes
 const gameRouter = require('./routes/game')
 const userRouter = require('./routes/user')
-app.use('/game', gameRouter)
-app.use('/user', userRouter)
+app.use('/api/game', gameRouter)
+app.use('/api/user', userRouter)
 
 // socket.io connection
 io.on('connection', (socket) => {
