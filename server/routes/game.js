@@ -18,6 +18,16 @@ router.post('/start', async (req, res) => {
   }
 });
 
+// get game
+router.get('/get', async (req, res) => {
+  const { gameID } = req.body;
+  const game = Game.findById(gameID);
+  if (!game) {
+    return res.status(400).send('Game not found')
+  }
+  return res.status(200).json(game)
+});
+
 // on move
 router.post('/move', async (req, res) => {
   const { gameID, move } = req.body;
