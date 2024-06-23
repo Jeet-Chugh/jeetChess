@@ -1,10 +1,11 @@
 const express = require('express');
+const auth = require('../middleware/authMiddleware')
 const Chess = require('chess.js').Chess
 const Game = require('../models/Game');
 const router = express.Router();
 
 // start game
-router.post('/start', async (req, res) => {
+router.post('/start', auth, async (req, res) => {
   const { players } = req.body;
   const chess = new Chess();
   const state = chess.fen()
@@ -19,9 +20,9 @@ router.post('/start', async (req, res) => {
 });
 
 // get game
-router.get('/get', async (req, res) => {
-  const { gameID } = req.body;
-  const game = Game.findById(gameID);
+router.get('/:gameID', async (req, res) => {
+  const { gameID } = req.params;
+  const game = await Game.findById(gameID);
   if (!game) {
     return res.status(400).send('Game not found')
   }
@@ -32,7 +33,7 @@ router.get('/get', async (req, res) => {
 router.post('/move', async (req, res) => {
   const { gameID, move } = req.body;
   
-  const game = Game.findById(gameID)
+  const game = await Game.findById(gameID)
   if (!game) {
     return res.status(400).send('Couldn\'t find game')
   }
