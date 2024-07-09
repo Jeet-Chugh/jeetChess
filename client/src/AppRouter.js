@@ -15,6 +15,7 @@ const AppRouter = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/game/:gameID" element={<Game />} />
       </Routes>
     </Router>
   );

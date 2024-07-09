@@ -9,7 +9,7 @@ const Dashboard = () => {
       <h1>Dashboard</h1>
       {user ? (
         <div>
-          <p>Welcome, {user.token}</p>
+          <p>Welcome, {user}</p>
           <button onClick={logout}>Logout</button>
         </div>
       ) : (
