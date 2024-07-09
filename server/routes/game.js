@@ -32,19 +32,20 @@ router.get('/:gameID', async (req, res) => {
 // on move
 router.post('/move', async (req, res) => {
   const { gameID, move } = req.body;
-  
+
   const game = await Game.findById(gameID)
   if (!game) {
     return res.status(400).send('Couldn\'t find game')
   }
 
   const chess = new Chess(game.state);
-  if (chess.move(move)) {
-    game.moves.push(move)
+  try {
+    chess.move(move)
+    game.moves.push(move.san)
     game.state = chess.fen()
     await game.save()
     return res.status(200).json(game)
-  } else {
+  } catch {
     return res.status(400).send('invalid move')
   }
 });
