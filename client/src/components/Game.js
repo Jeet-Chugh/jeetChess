@@ -1,60 +1,62 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import axios from "axios";
-import { makeMove } from "../services/api";
+import { makeMove, fetchGameState } from "../services/api";
 import { AuthContext } from "../auth/AuthContext";
 import { useParams } from "react-router-dom";
 
 const Game = () => {
   const [game, setGame] = useState(new Chess());
+  const [color, setColor] = useState("none");
   const user = useContext(AuthContext);
+  console.log(user.user);
   const { gameID } = useParams();
 
-  // load game initially
+  // Load game initially
   useEffect(() => {
-    const fetchGameState = async () => {
+    const setGameState = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/game/${gameID}`
-        );
-        setGame(new Chess(response.data.state));
-        console.log(response.data.state);
+        const response = await fetchGameState(gameID);
+        setGame(new Chess(response.state));
       } catch (e) {
-        console.log("error fetching game", e);
+        console.log("Unable to fetch game", e);
       }
     };
-    fetchGameState();
+    setGameState();
   }, [gameID]);
 
-  // optimistically render move, backtrack if illegal
+  // Optimistically render move, backtrack if illegal
   const handleMove = async (move) => {
     try {
       const newGame = new Chess(game.fen());
       const result = newGame.move(move);
       if (result === null) {
-        return false;
-      }
+        return false; // Illegal move
+      } 
 
       setGame(newGame);
+
       const response = await makeMove(gameID, move);
-      setGame(new Chess(response.data.state));
+      setGame(new Chess(response.state));
+      return true;
     } catch (e) {
-      console.log("invalid move", e);
+      console.log("Invalid move", e);
+      // Rollback to previous state if move fails
+      setGame(new Chess(game.fen()));
+      return false;
     }
   };
 
-  function onDrop(preSquare, postSquare) {
-    const move = handleMove({
-      from: preSquare,
-      to: postSquare,
-      promotion: "q",
-    });
-    if (move === null) {
-      return false;
-    }
-    return true;
-  }
+  const onDrop = async (sourceSquare, targetSquare) => {
+    const move = {
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q", // change this eventually
+    };
+
+    const moveSuccess = await handleMove(move);
+    return moveSuccess;
+  };
 
   return (
     <div>
