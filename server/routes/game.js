@@ -41,7 +41,7 @@ router.post('/move', async (req, res) => {
   const chess = new Chess(game.state);
   try {
     chess.move(move)
-    game.moves.push(move.san)
+    game.moves.push(chess.history({ verbose: true }).at(-1).san)
     game.state = chess.fen()
     await game.save()
     return res.status(200).json(game)
