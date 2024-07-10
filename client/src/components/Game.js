@@ -4,25 +4,38 @@ import { Chess } from "chess.js";
 import { makeMove, fetchGameState } from "../services/api";
 import { AuthContext } from "../auth/AuthContext";
 import { useParams } from "react-router-dom";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 const Game = () => {
   const [game, setGame] = useState(new Chess());
-  const [color, setColor] = useState("none");
   const user = useContext(AuthContext);
-  console.log(user.user);
   const { gameID } = useParams();
 
-  // Load game initially
+  // Load game initially and setup socket listeners
   useEffect(() => {
     const setGameState = async () => {
       try {
         const response = await fetchGameState(gameID);
-        setGame(new Chess(response.state));
+        setGame(new Chess(response.data.state));
       } catch (e) {
         console.log("Unable to fetch game", e);
       }
     };
     setGameState();
+
+    socket.emit("joinGame", gameID);
+    socket.on("moveMade", (updatedGame) => {
+      setGame(new Chess(updatedGame.state));
+    });
+    socket.on("gameStarted", (newGame) => {
+      setGame(new Chess(newGame.state));
+    });
+    return () => {
+      socket.off("moveMade");
+      socket.off("gameStarted");
+    };
   }, [gameID]);
 
   // Optimistically render move, backtrack if illegal

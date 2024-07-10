@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 
 const GameSchema = new mongoose.Schema({
-  players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  players: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      color: { type: String, enum: ['w', 'b'], required: true }
+    }
+  ],
   moves: [{ type: String }],
   state: { type: String }, // FEN string
   createdAt: { type: Date, default: Date.now },

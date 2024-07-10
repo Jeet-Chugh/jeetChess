@@ -15,14 +15,22 @@ router.post("/start", auth, async (req, res) => {
   const chess = new Chess();
   const state = chess.fen();
 
-  const newGame = new Game({ players, state, moves: [] });
+  const newGame = new Game({
+    players: [
+      { user: players[0], color: "w" },
+      { user: players[1], color: "b" }
+    ],
+    state,
+    moves: []
+  });
 
   try {
     await newGame.save();
-    return res.status(201).json(newGame);
+    res.status(201).json(newGame);
+    req.io.to(newGame._id.toString()).emit("gameStarted", newGame);
   } catch (error) {
     console.error("Error creating game:", error);
-    return res.status(500).json({ error: "Error creating game" });
+    res.status(500).json({ error: "Error creating game" });
   }
 });
 
@@ -59,9 +67,25 @@ router.post("/move", auth, async (req, res) => {
     }
 
     const chess = new Chess(game.state);
+    const turn = chess.turn(); // 'w' for white, 'b' for black
+    const currentUser = req.user.userId; // from auth middleware
+    console.log(currentUser)
+
+    // current player's color
+    const currentPlayer = game.players.find(player => player.user.toString() === currentUser);
+
+    if (!currentPlayer) {
+      return res.status(403).json({ error: "Not a player in this game" });
+    }
+
+    if (currentPlayer.color !== turn) {
+      return res.status(403).json({ error: "Not your turn" });
+    }
+
     const result = chess.move(move);
 
     if (result === null) {
+      console.error("Invalid move attempted:", move);
       return res.status(400).json({ error: "Invalid move" });
     }
 
@@ -69,7 +93,8 @@ router.post("/move", auth, async (req, res) => {
     game.state = chess.fen();
     await game.save();
 
-    return res.status(200).json(game);
+    res.status(200).json(game);
+    req.io.to(gameID).emit("moveMade", game);
   } catch (error) {
     console.error("Error processing move:", error);
     return res.status(500).json({ error: "Error processing move" });

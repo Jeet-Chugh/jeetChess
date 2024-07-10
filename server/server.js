@@ -21,6 +21,12 @@ const io = new Server(httpServer, {
   }
 });
 
+// Middleware to add io to req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
@@ -42,9 +48,8 @@ app.use('/api/user', userRouter)
 io.on('connection', (socket) => {
   console.log("Connected to socket!")
 
-  // example socket route
-  socket.on('example_message', (data) => {
-    console.log('received example_message')
+  socket.on("joinGame", (gameID) => {
+    socket.join(gameID);
   });
 
   socket.on('disconnect', () => {
