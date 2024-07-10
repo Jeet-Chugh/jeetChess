@@ -37,7 +37,7 @@ const Game = () => {
       setGame(newGame);
 
       const response = await makeMove(gameID, move);
-      setGame(new Chess(response.state));
+      setGame(new Chess(response.data.state));
       return true;
     } catch (e) {
       console.log("Invalid move", e);
