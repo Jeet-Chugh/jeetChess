@@ -72,9 +72,13 @@ const Game = () => {
   };
 
   return (
-    <div>
-      <h2>Game</h2>
-      <Chessboard position={game.fen()} onPieceDrop={onDrop}></Chessboard>
+    <div className="flex items-center justify-center min-h-screen bg-gray-800 text-white p-4">
+      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-4xl">
+        <h2 className="text-2xl font-semibold mb-4 text-center">Game</h2>
+        <div className="flex justify-center">
+          <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={480} />
+        </div>
+      </div>
     </div>
   );
 };
