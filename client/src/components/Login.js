@@ -15,12 +15,15 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await login(username, password);
-      authLogin(response.data.token, rememberMe)
-      navigate('/dashboard')
+      if (response.data.accessToken && response.data.refreshToken) {
+        authLogin(response.data.accessToken, response.data.refreshToken, rememberMe);
+        navigate('/dashboard')
+      }
     } catch (error) {
       console.error('Login failed', error); // change eventually to popup message
     }
   };
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800">
       <form className="bg-gray-900 p-8 rounded-lg shadow-lg text-white w-full max-w-sm" onSubmit={handleLogin}>

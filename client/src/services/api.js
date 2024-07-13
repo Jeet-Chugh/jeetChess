@@ -15,6 +15,22 @@ export const setAuthToken = (token) => {
   }
 };
 
+export const refreshToken = async (refreshTokenValue) => {
+  try {
+    const response = await api.post("/api/user/refresh-token", { refreshToken: refreshTokenValue });
+    if (response.data.accessToken && response.data.refreshToken) {
+      const storage = localStorage.getItem('refreshToken') ? localStorage : sessionStorage;
+      storage.setItem('accessToken', response.data.accessToken);
+      storage.setItem('refreshToken', response.data.refreshToken);
+      setAuthToken(response.data.accessToken);
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return null;
+  }
+};
+
 export const makeMove = (gameID, move) => {
   return api.post("/api/game/move", { gameID, move });
 };
