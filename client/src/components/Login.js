@@ -6,17 +6,19 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const { login: authLogin } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await login(username, password);
-      authLogin(response.data.token)
+      authLogin(response.data.token, rememberMe)
       navigate('/dashboard')
     } catch (error) {
-      console.error('Login failed', error);
+      console.error('Login failed', error); // change eventually to popup message
     }
   };
   return (
@@ -41,6 +43,10 @@ const Login = () => {
           />
         </div>
         <div className="flex items-center justify-between mb-4">
+          <label className="flex items-center text-sm">
+            <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="mr-2" />
+            Remember me
+          </label>
           <a href="/forgot-password" className="text-sm text-gray-400 hover:underline">
             Forgot Password?
           </a>

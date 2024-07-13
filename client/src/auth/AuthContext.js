@@ -7,21 +7,28 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const localToken = localStorage.getItem('authToken');
+    const sessionToken = sessionStorage.getItem('authToken');
+    const token = localToken || sessionToken;
     if (token) {
       setAuthToken(token);
       setUser(token)
     }
   }, []);
 
-  const login = (token) => {
-    localStorage.setItem('authToken', token);
+  const login = (token, rememberMe) => {
+    if (rememberMe) {
+      localStorage.setItem('authToken', token)
+    } else {
+      sessionStorage.setItem('authToken', token);
+    }
     setAuthToken(token);
     setUser(token);
   };
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken')
     setAuthToken(null);
     setUser(null);
   };

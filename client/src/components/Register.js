@@ -38,7 +38,7 @@ const Register = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800">
       <form className="bg-gray-900 p-8 rounded-lg shadow-lg text-white w-full max-w-sm" onSubmit={handleRegister}>
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <div className="mb-4">
           <input
