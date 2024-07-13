@@ -4,7 +4,7 @@ import { AuthContext } from "../auth/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [isPlayDropdownOpen, setIsPlayDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -147,8 +147,9 @@ const Navbar = () => {
                     </li>
                     <li>
                       <Link
-                        to="/sign-out"
+                        to="/"
                         className="block px-4 py-2 hover:bg-green-600"
+                        onClick={logout}
                       >
                         Sign out
                       </Link>
@@ -165,9 +166,10 @@ const Navbar = () => {
               >
                 Login
               </Link>
+              <span className="py-2">or</span>
               <Link
-                to="/create-account"
-                className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+                to="/register"
+                className="py-2 px-4 bg-green-500 text-white rounded hover:bg-blue-600"
               >
                 Create Account
               </Link>

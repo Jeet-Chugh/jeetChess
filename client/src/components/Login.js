@@ -41,10 +41,6 @@ const Login = () => {
           />
         </div>
         <div className="flex items-center justify-between mb-4">
-          <label className="flex items-center text-sm">
-            <input type="checkbox" className="mr-2" />
-            Remember me
-          </label>
           <a href="/forgot-password" className="text-sm text-gray-400 hover:underline">
             Forgot Password?
           </a>
@@ -53,7 +49,7 @@ const Login = () => {
           Log In
         </button>
         <div className="mt-4 text-center text-gray-400 text-sm">
-          New? <a href="/register" className="text-green-500 hover:underline">Create Account</a> - and start playing chess!
+          New? <a href="/register" className="text-green-500 hover:underline">Create an Account</a> - and start playing!
         </div>
       </form>
     </div>
