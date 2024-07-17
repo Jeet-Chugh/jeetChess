@@ -40,7 +40,7 @@ const Navbar = () => {
             </li>
             <li className="relative">
               <button
-                onClick={togglePlayDropdown}
+                onMouseEnter={togglePlayDropdown}
                 className="flex items-center justify-between w-full py-2 px-3 text-xl rounded md:text-green-500 md:p-0 hover:text-green-600"
               >
                 Play
@@ -61,12 +61,12 @@ const Navbar = () => {
                 </svg>
               </button>
               {isPlayDropdownOpen && (
-                <div className="absolute z-10 font-normal bg-gray-900 divide-y divide-gray-100 rounded-lg shadow w-44">
-                  <ul className="py-2 text-sm text-white">
+                <div onMouseLeave={togglePlayDropdown} className="absolute z-10 font-normal bg-gray-900 divide-y divide-gray-100 rounded-lg shadow w-44">
+                  <ul className="py-2 px-2 text-xl text-white">
                     <li>
                       <Link
                         to="/dashboard"
-                        className="block px-4 hover:bg-green-600"
+                        className="block hover:bg-green-600"
                       >
                         Create Game
                       </Link>                    
@@ -74,7 +74,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="#"
-                        className="block px-4 hover:bg-green-600"
+                        className="block hover:bg-green-600"
                       >
                         Join Game
                       </Link>
@@ -82,7 +82,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="#"
-                        className="block px-4 hover:bg-green-600"
+                        className="block hover:bg-green-600"
                       >
                         My Games
                       </Link>
