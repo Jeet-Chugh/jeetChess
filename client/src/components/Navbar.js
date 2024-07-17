@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-gray-900 border-gray-700">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4 h-16">
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
             <img src="/logo.png" className="h-8" alt="Logo" />
@@ -66,7 +66,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="/dashboard"
-                        className="block px-4 py-2 hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         Create Game
                       </Link>                    
@@ -74,7 +74,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="#"
-                        className="block px-4 py-2  hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         Join Game
                       </Link>
@@ -82,7 +82,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="#"
-                        className="block px-4 py-2  hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         My Games
                       </Link>
@@ -93,7 +93,7 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-        <div className="hidden w-full md:block md:w-auto" id="navbar-multi-level">
+        <div className="flex items-center h-full" id="navbar-multi-level">
           {user ? (
             <div className="relative">
               <button
@@ -101,7 +101,7 @@ const Navbar = () => {
                 className="flex items-center"
               >
                 <FaUserCircle className="w-8 h-8" />
-                <span className="ml-2">{user.substring(0,5)}</span>
+                <span className="ml-2">{user.username}</span>
                 <svg
                   className="w-2.5 h-2.5 ms-2.5"
                   aria-hidden="true"
@@ -124,7 +124,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         Profile
                       </Link>
@@ -132,7 +132,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="/settings"
-                        className="block px-4 py-2 hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         Settings
                       </Link>
@@ -140,7 +140,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="/help"
-                        className="block px-4 py-2 hover:bg-green-600"
+                        className="block px-4 hover:bg-green-600"
                       >
                         Help
                       </Link>
@@ -148,7 +148,7 @@ const Navbar = () => {
                     <li>
                       <Link
                         to="/"
-                        className="block px-4 py-2 hover:bg-red-600"
+                        className="block px-4 hover:bg-red-600"
                         onClick={logout}
                       >
                         Sign out
@@ -159,17 +159,17 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <div className="flex space-x-4">
+            <div className="flex items-center py-2 space-x-2">
               <Link
                 to="/login"
-                className="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600"
+                className="py-2.5 px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 h-10"
               >
                 Login
               </Link>
-              <span className="py-2">or</span>
+              <span>or</span>
               <Link
                 to="/register"
-                className="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600"
+                className="py-2.5 px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 h-10"
               >
                 Create Account
               </Link>

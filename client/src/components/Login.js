@@ -7,6 +7,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState(null);
   const { login: authLogin } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -20,13 +21,16 @@ const Login = () => {
         navigate('/dashboard')
       }
     } catch (error) {
-      console.error('Login failed', error); // change eventually to popup message
+      console.error('Login failed', error);
+      setError("Invalid Credentials");
     }
   };
   
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800">
       <form className="bg-gray-900 p-8 rounded-lg shadow-lg text-white w-full max-w-sm" onSubmit={handleLogin}>
+      <h2 className="text-2xl font-bold mb-3 text-center">Login</h2>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <div className="mb-4">
           <input
             type="text"

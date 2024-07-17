@@ -7,9 +7,9 @@ const Dashboard = () => {
   return (
     <div>
       <h1>Dashboard</h1>
-      {user ? (
+      {(user !== null) ? (
         <div>
-          <p>Welcome, {user}</p>
+          <p>Welcome, {user.username}</p>
           <button onClick={logout}>Logout</button>
         </div>
       ) : (

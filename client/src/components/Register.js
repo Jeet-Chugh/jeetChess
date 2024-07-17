@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -8,9 +7,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -25,10 +22,8 @@ const Register = () => {
         username,
         password,
         email,
-        name,
       });
-      setUser(response.data.user);
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Registration failed', error);
       setError('Registration failed. Please try again.');
@@ -55,15 +50,6 @@ const Register = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2 text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>

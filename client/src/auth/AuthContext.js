@@ -48,8 +48,7 @@ const AuthProvider = ({ children }) => {
     setUser({
       id: decodedToken.userId,
       username: decodedToken.username,
-      name: decodedToken.name,
-      email: decodedToken.email
+      email: decodedToken.email,
     });
   };
 
