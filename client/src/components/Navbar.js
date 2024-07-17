@@ -1,5 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -7,6 +8,20 @@ const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const [isPlayDropdownOpen, setIsPlayDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleOutsideClick(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsUserDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
 
   const togglePlayDropdown = () => {
     setIsUserDropdownOpen(false);
@@ -95,7 +110,7 @@ const Navbar = () => {
         </div>
         <div className="flex items-center h-full" id="navbar-multi-level">
           {user ? (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={toggleUserDropdown}
                 className="flex items-center"
