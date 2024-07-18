@@ -39,10 +39,10 @@ const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const setAuthState = (accessToken, refreshTokenValue, rememberMe) => {
+  const setAuthState = (accessToken, refreshToken, rememberMe) => {
     const storage = rememberMe ? localStorage : sessionStorage;
     storage.setItem('accessToken', accessToken);
-    storage.setItem('refreshToken', refreshTokenValue);
+    storage.setItem('refreshToken', refreshToken);
     setAuthToken(accessToken);
     const decodedToken = jwtDecode(accessToken);
     setUser({

@@ -22,15 +22,10 @@ const Game = () => {
         const response = await fetchGameState(gameID);
         setGame(new Chess(response.data.state));
         
-        // Set players
-        setPlayerWhite(response.data.players.white);
-        setPlayerBlack(response.data.players.black);
-        
-        // Set board orientation based on user color
-        if (user && response.data.players) {
-          const userColor = response.data.players.white.id === user.id ? 'white' : 'black';
-          setBoardOrientation(userColor);
-        }
+        setPlayerWhite(response.data.w);
+        setPlayerBlack(response.data.b);
+        if (user) setBoardOrientation(response.data.b._id === user.id ? 'black' : 'white');
+
       } catch (e) {
         console.error("Unable to fetch game", e);
       }
@@ -41,19 +36,17 @@ const Game = () => {
     socket.on("moveMade", (updatedGame) => {
       setGame(new Chess(updatedGame.state));
     });
+
     socket.on("gameStarted", (newGame) => {
       setGame(new Chess(newGame.state));
-      setPlayerWhite(newGame.players.white);
-      setPlayerBlack(newGame.players.black);
-      // Update orientation if game just started
-      if (user) {
-        const userColor = newGame.players.white.id === user.id ? 'white' : 'black';
-        setBoardOrientation(userColor);
-      }
+      setPlayerWhite(newGame.w);
+      setPlayerBlack(newGame.b);
+      if (user) setBoardOrientation(newGame.data.b._id === user.id ? 'black' : 'white');
     });
+
     return () => {
-      socket.off("moveMade");
-      socket.off("gameStarted");
+      socket.removeAllListeners()
+      socket.disconnect()
     };
   }, [gameID, user]);
 
@@ -88,32 +81,31 @@ const Game = () => {
     return await handleMove(move);
   };
 
-  const getPlayerName = (color) => {
-    const player = color === 'white' ? playerWhite : playerBlack;
-    return player ? player.username : 'Waiting for player...';
-  };
+  const topPlayer = boardOrientation === 'white' ? playerBlack?.username : playerWhite;
+  const bottomPlayer = boardOrientation === 'white' ? playerWhite?.username : playerBlack;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-800 text-white p-4">
-      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-4xl">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Chess Game</h2>
-        <div className="flex flex-col items-center">
+    <div className="flex items-center justify-center min-h-screen text-white p-4">
+      <div className="p-8 rounded-lg w-full max-w-4xl">
+        <div className="flex flex-col text-left">
           <div className="mb-2 text-lg font-semibold">
-            {boardOrientation === 'white' ? getPlayerName('black') : getPlayerName('white')}
+            {topPlayer}
           </div>
           <Chessboard 
             position={game.fen()} 
             onPieceDrop={onDrop} 
             boardWidth={480} 
             boardOrientation={boardOrientation}
+            customDarkSquareStyle={{ backgroundColor: "#D2D6EF" }}
+            customLightSquareStyle={{ backgroundColor: "#727072" }}
           />
           <div className="mt-2 text-lg font-semibold">
-            {boardOrientation === 'white' ? getPlayerName('white') : getPlayerName('black')}
+            {bottomPlayer}
           </div>
         </div>
         <div className="mt-4 text-center">
           <p>Current player: {game.turn() === 'w' ? 'White' : 'Black'}</p>
-          <p>Your color: {user ? boardOrientation : 'Spectator'}</p>
+          <p>Your role: {user ? (user.id === playerWhite?._id ? 'White' : (user.id === playerBlack?._id ? 'Black' : 'Spectator')) : 'Spectator'}</p>
         </div>
       </div>
     </div>

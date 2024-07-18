@@ -6,20 +6,16 @@ const router = express.Router();
 
 // start game
 router.post("/start", auth, async (req, res) => {
-  const { players } = req.body;
+  const { w, b } = req.body;
 
-  if (!players || players.length !== 2) {
+  if (!w || !b) {
     return res.status(400).json({ error: "Invalid players input" });
   }
 
-  const chess = new Chess();
-  const state = chess.fen();
-
+  const state = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const newGame = new Game({
-    players: [
-      { user: players[0], color: "w" },
-      { user: players[1], color: "b" }
-    ],
+    w, 
+    b,
     state,
     moves: []
   });
@@ -38,7 +34,7 @@ router.post("/start", auth, async (req, res) => {
 router.get("/:gameID", async (req, res) => {
   try {
     const { gameID } = req.params;
-    const game = await Game.findById(gameID);
+    const game = await Game.findById(gameID).populate('w b');
 
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
@@ -69,16 +65,17 @@ router.post("/move", auth, async (req, res) => {
     const chess = new Chess(game.state);
     const turn = chess.turn(); // 'w' for white, 'b' for black
     const currentUser = req.user.userId; // from auth middleware
-    console.log(currentUser)
 
-    // current player's color
-    const currentPlayer = game.players.find(player => player.user.toString() === currentUser);
+    console.log(game);
 
-    if (!currentPlayer) {
+    // Check if the current user is one of the players
+    if (game.w.toString() !== currentUser && game.b.toString() !== currentUser) {
       return res.status(403).json({ error: "Not a player in this game" });
     }
 
-    if (currentPlayer.color !== turn) {
+    // Check if it's the current player's turn
+    if ((turn === 'w' && game.w.toString() !== currentUser) || 
+        (turn === 'b' && game.b.toString() !== currentUser)) {
       return res.status(403).json({ error: "Not your turn" });
     }
 
@@ -92,6 +89,7 @@ router.post("/move", auth, async (req, res) => {
     game.moves.push(result.san);
     game.state = chess.fen();
     await game.save();
+    game.lastMoveBy = currentUser;
 
     res.status(200).json(game);
     req.io.to(gameID).emit("moveMade", game);

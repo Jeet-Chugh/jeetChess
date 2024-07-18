@@ -7,11 +7,11 @@ const dotenv = require('dotenv').config();
 
 // User registration
 router.post('/register', async (req, res) => {
-  const { username, password, email, name } = req.body;
+  const { username, password, email } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const user = new User({ username, password: hashedPassword, email, name });
+    const user = new User({ username, password: hashedPassword, email });
     await user.save();
     return res.status(201).send('Registration successful');
   } catch (error) {
@@ -35,7 +35,7 @@ router.post('/login', async (req, res) => {
 
   // Generate access token
   const accessToken = jwt.sign(
-    { userId: user._id, username: user.username, name: user.name },
+    { userId: user._id, username: user.username, email: user.email },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: '15m' }
   );
@@ -67,8 +67,8 @@ router.post('/refresh-token', async (req, res) => {
     }
     
     const accessToken = jwt.sign(
-      { userId: user._id, username: user.username, name: user.name },
-      process.env.JWT_SECRET,
+      { userId: user._id, username: user.username, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '15m' }
     );
     
