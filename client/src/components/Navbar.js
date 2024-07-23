@@ -94,14 +94,6 @@ const Navbar = () => {
                         Join Game
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="block hover:bg-green-600"
-                      >
-                        My Games
-                      </Link>
-                    </li>
                   </ul>
                 </div>
               )}
@@ -138,26 +130,10 @@ const Navbar = () => {
                   <ul className="py-2 text-sm text-white">
                     <li>
                       <Link
-                        to="/profile"
-                        className="block px-4 hover:bg-green-600"
-                      >
-                        Profile
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
                         to="/settings"
                         className="block px-4 hover:bg-green-600"
                       >
                         Settings
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/help"
-                        className="block px-4 hover:bg-green-600"
-                      >
-                        Help
                       </Link>
                     </li>
                     <li>

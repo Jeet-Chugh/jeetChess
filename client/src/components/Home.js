@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { AuthContext } from '../auth/AuthContext';
+import { FaUserCircle } from 'react-icons/fa';
 
 const Home = () => {
   const { user } = useContext(AuthContext);
@@ -37,7 +38,8 @@ const Home = () => {
               customDarkSquareStyle={{ backgroundColor: "#727072" }}
               customLightSquareStyle={{ backgroundColor: "#D2D6EF" }}
             />
-            <div className="mt-2 text-2xl font-semibold">
+            <div className="mt-2 text-2xl font-semibold inline-flex items-center">
+              <FaUserCircle className="mr-2" />
               {user? user.username: "Guest"}
             </div>
           </div>
