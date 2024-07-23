@@ -18,7 +18,7 @@ const Login = () => {
       const response = await login(username, password);
       if (response.data.accessToken && response.data.refreshToken) {
         authLogin(response.data.accessToken, response.data.refreshToken, rememberMe);
-        navigate('/dashboard')
+        navigate('/')
       }
     } catch (error) {
       console.error('Login failed', error);

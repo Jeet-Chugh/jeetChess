@@ -80,7 +80,7 @@ const Navbar = () => {
                   <ul className="py-2 px-2 text-xl text-white">
                     <li>
                       <Link
-                        to="/dashboard"
+                        to="/"
                         className="block hover:bg-green-600"
                       >
                         Create Game
