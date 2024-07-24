@@ -22,6 +22,7 @@ const Game = () => {
   });
   const [isResignDialogOpen, setIsResignDialogOpen] = useState(false);
   const [isDrawOffered, setIsDrawOffered] = useState(false);
+  const [isDrawOfferDialogOpen, setIsDrawOfferDialogOpen] = useState(false);
   const [isGameOverDialogOpen, setIsGameOverDialogOpen] = useState(false);
   const [gameResult, setGameResult] = useState('');
   const { user } = useContext(AuthContext);
@@ -53,6 +54,17 @@ const Game = () => {
     };
     setGameState();
 
+    socket.on("drawOffered", (data) => {
+      if (data.offeredBy !== user.id) {
+        setIsDrawOfferDialogOpen(true);
+      }
+    });
+
+    socket.on("gameEnded", (data) => {
+      setGameResult(getResultMessage(data.game.result, data.reason));
+      setIsGameOverDialogOpen(true);
+    });
+
     socket.emit("joinGame", gameID);
     socket.on("moveMade", (updatedGame) => {
       setGame(new Chess(updatedGame.state));
@@ -73,6 +85,19 @@ const Game = () => {
       socket.disconnect();
     };
   }, [gameID, user]);
+
+  const getResultMessage = (result, reason) => {
+    switch(result) {
+      case 'w':
+        return `White wins${reason ? ` by ${reason}` : ''}`;
+      case 'b':
+        return `Black wins${reason ? ` by ${reason}` : ''}`;
+      case 'd':
+        return `Game drawn${reason ? ` by ${reason}` : ''}`;
+      default:
+        return `Game over: ${result}`;
+    }
+  };
 
   const handleMove = async (move) => {
     try {
@@ -130,6 +155,11 @@ const Game = () => {
     }
   };
 
+  const handleDeclineDraw = () => {
+    setIsDrawOfferDialogOpen(false);
+    setIsDrawOffered(false);
+  };
+
   const sideSpace = `${(windowSize.width - (boardSize * 1.5)) / 2}px`;
   const topPlayer = boardOrientation === 'white' ? playerBlack?.username : playerWhite?.username;
   const bottomPlayer = boardOrientation === 'white' ? playerWhite?.username : playerBlack?.username;
@@ -175,6 +205,19 @@ const Game = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={isDrawOfferDialogOpen} onClose={handleDeclineDraw}>
+        <DialogTitle>Draw Offered</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your opponent has offered a draw. Do you accept?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <button onClick={handleDeclineDraw} className="px-4 py-2 bg-[#727072] text-white rounded">Decline</button>
+          <button onClick={handleAcceptDraw} className="px-4 py-2 bg-green-500 text-white rounded">Accept</button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={isResignDialogOpen} onClose={() => setIsResignDialogOpen(false)}>
         <DialogTitle>Confirm Resignation</DialogTitle>

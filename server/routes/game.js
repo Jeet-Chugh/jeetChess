@@ -99,4 +99,87 @@ router.post("/move", auth, async (req, res) => {
   }
 });
 
+router.post("/:gameID/resign", auth, async (req, res) => {
+  const { gameID } = req.params;
+  const resigningUserId = req.user.userId;
+
+  try {
+    const game = await Game.findById(gameID);
+
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" });
+    }
+
+    if (game.w.toString() !== resigningUserId && game.b.toString() !== resigningUserId) {
+      return res.status(403).json({ error: "Not a player in this game" });
+    }
+
+    game.result = game.w.toString() === resigningUserId ? 'b' : 'w';
+    await game.save();
+
+    res.status(200).json(game);
+    req.io.to(gameID).emit("gameEnded", { game, reason: "resignation" });
+  } catch (error) {
+    console.error("Error processing resignation:", error);
+    return res.status(500).json({ error: "Error processing resignation" });
+  }
+});
+
+router.post("/:gameID/offer-draw", auth, async (req, res) => {
+  const { gameID } = req.params;
+  const offeringUserId = req.user.userId;
+
+  try {
+    const game = await Game.findById(gameID);
+
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" });
+    }
+
+    if (game.w.toString() !== offeringUserId && game.b.toString() !== offeringUserId) {
+      return res.status(403).json({ error: "Not a player in this game" });
+    }
+
+    game.drawOffer = offeringUserId;
+    await game.save();
+
+    res.status(200).json(game);
+    req.io.to(gameID).emit("drawOffered", { game, offeredBy: offeringUserId });
+  } catch (error) {
+    console.error("Error processing draw offer:", error);
+    return res.status(500).json({ error: "Error processing draw offer" });
+  }
+});
+
+router.post("/:gameID/accept-draw", auth, async (req, res) => {
+  const { gameID } = req.params;
+  const acceptingUserId = req.user.userId;
+
+  try {
+    const game = await Game.findById(gameID);
+
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" });
+    }
+
+    if (game.w.toString() !== acceptingUserId && game.b.toString() !== acceptingUserId) {
+      return res.status(403).json({ error: "Not a player in this game" });
+    }
+
+    if (!game.drawOffer || game.drawOffer.toString() === acceptingUserId) {
+      return res.status(400).json({ error: "No valid draw offer to accept" });
+    }
+
+    game.result = 'd';
+    game.drawOffer = null;
+    await game.save();
+
+    res.status(200).json(game);
+    req.io.to(gameID).emit("gameEnded", { game, reason: "draw" });
+  } catch (error) {
+    console.error("Error processing draw acceptance:", error);
+    return res.status(500).json({ error: "Error processing draw acceptance" });
+  }
+});
+
 module.exports = router;

@@ -99,8 +99,6 @@ export const fetchGameState = (gameID) => {
   return api.get(`/api/game/${gameID}`);
 };
 
-// NEED TO IMPLEMENT
-
 export const resignGame = (gameID) => {
   return api.post(`/api/game/${gameID}/resign`);
 };
