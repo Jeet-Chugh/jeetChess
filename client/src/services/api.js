@@ -111,4 +111,12 @@ export const acceptDraw = (gameID) => {
   return api.post(`/api/game/${gameID}/accept-draw`);
 };
 
+export const createGame = (gameData) => {
+  return api.post("/api/game/start", gameData);
+};
+
+export const getUserByUsername = (username) => {
+  return api.get(`/api/user/by-username/${username}`);
+};
+
 export default api;

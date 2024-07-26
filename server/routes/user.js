@@ -50,6 +50,20 @@ router.post('/login', async (req, res) => {
   return res.status(200).json({ accessToken, refreshToken });
 });
 
+router.get('/by-username/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Only send non-sensitive information
+    res.json({ _id: user._id, username: user.username });
+  } catch (error) {
+    console.error('Error fetching user by username:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Refresh token
 router.post('/refresh-token', async (req, res) => {
   const { refreshToken } = req.body;
