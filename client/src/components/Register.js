@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
+import { register, login } from '../services/api';
+import { AuthContext } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -8,6 +9,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const { login: authLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -18,15 +20,19 @@ const Register = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/user/register', {
-        username,
-        password,
-        email,
-      });
-      navigate('/login');
+      await register(username, password, email);
     } catch (error) {
-      console.error('Registration failed', error);
-      setError('Registration failed. Please try again.');
+      setError(error.response.data);
+    }
+    try {
+      const response = await login(username, password);
+      if (response.data.accessToken && response.data.refreshToken) {
+        authLogin(response.data.accessToken, response.data.refreshToken, false);
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Login failed', error);
+      navigate('/login');
     }
   };
 

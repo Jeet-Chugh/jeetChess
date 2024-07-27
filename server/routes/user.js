@@ -15,6 +15,12 @@ router.post('/register', async (req, res) => {
     await user.save();
     return res.status(201).send('Registration successful');
   } catch (error) {
+    console.log(error);
+    // duplicate fields error
+    if (error.code === 11000) {
+      return res.status(400).send(`${Object.keys(error.keyPattern).join(",")} already exists`);
+    }
+    // any other 
     return res.status(400).send('Registration error');
   }
 });

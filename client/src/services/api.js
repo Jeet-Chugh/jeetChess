@@ -91,6 +91,10 @@ export const makeMove = (gameID, move) => {
   return api.post("/api/game/move", { gameID, move });
 };
 
+export const register = (username, password, email) => {
+  return api.post("/api/user/register", { username, password, email });
+};
+
 export const login = (username, password) => {
   return api.post("/api/user/login", { username, password });
 };
