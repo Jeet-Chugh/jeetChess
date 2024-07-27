@@ -78,12 +78,6 @@ const Game = () => {
       setGameResult(result);
       setIsGameOverDialogOpen(true);
     });
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      socket.removeAllListeners();
-      socket.disconnect();
-    };
   }, [gameID, user]);
 
   const getResultMessage = (result, reason) => {

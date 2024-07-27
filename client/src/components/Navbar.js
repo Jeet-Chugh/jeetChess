@@ -6,7 +6,6 @@ import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
-  const [isPlayDropdownOpen, setIsPlayDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -23,13 +22,7 @@ const Navbar = () => {
     };
   }, []);
 
-  const togglePlayDropdown = () => {
-    setIsUserDropdownOpen(false);
-    setIsPlayDropdownOpen(!isPlayDropdownOpen);
-  };
-
   const toggleUserDropdown = () => {
-    setIsPlayDropdownOpen(false);
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
 
@@ -53,50 +46,14 @@ const Navbar = () => {
                 Home
               </Link>
             </li>
-            <li className="relative">
-              <button
-                onMouseEnter={togglePlayDropdown}
-                className="flex items-center justify-between w-full py-2 px-3 text-xl rounded md:text-green-500 md:p-0 hover:text-green-600"
+            <li>
+              <Link
+                to="/"
+                className="block text-xl ml-3 py-2 px-3 text-white rounded md:text-green-500 md:p-0 hover:text-green-600"
+                aria-current="page"
               >
-                Play
-                <svg
-                  className="w-2.5 h-2.5 ms-2.5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 10 6"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 1 4 4 4-4"
-                  />
-                </svg>
-              </button>
-              {isPlayDropdownOpen && (
-                <div onMouseLeave={togglePlayDropdown} className="absolute z-10 font-normal bg-gray-900 divide-y divide-gray-100 rounded-lg shadow w-44">
-                  <ul className="py-2 px-2 text-xl text-white">
-                    <li>
-                      <Link
-                        to="/"
-                        className="block hover:bg-green-600"
-                      >
-                        Create Game
-                      </Link>                    
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="block hover:bg-green-600"
-                      >
-                        Join Game
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              )}
+                My Games
+              </Link>
             </li>
           </ul>
         </div>
