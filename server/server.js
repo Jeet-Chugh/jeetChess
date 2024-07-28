@@ -48,6 +48,10 @@ app.use('/api/user', userRouter)
 io.on('connection', (socket) => {
   console.log("Connected to socket!")
 
+  socket.on("declineDraw", (gameID) => {
+    io.to(gameID).emit("drawReset");
+  });
+
   socket.on("joinGame", (gameID) => {
     socket.join(gameID);
   });

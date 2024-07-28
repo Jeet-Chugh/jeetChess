@@ -39,8 +39,7 @@ router.get("/:gameID", async (req, res) => {
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
-
-    return res.status(200).json(game);
+    return res.status(200).json({...game, "turn": new Chess(game.state).turn()});
   } catch (error) {
     console.error("Error fetching game:", error);
     return res.status(500).json({ error: "Error fetching game" });
@@ -92,7 +91,7 @@ router.post("/move", auth, async (req, res) => {
     game.lastMoveBy = currentUser;
 
     res.status(200).json(game);
-    req.io.to(gameID).emit("moveMade", game);
+    req.io.to(gameID).emit("moveMade", {"game": game, "turn": chess.turn()});
   } catch (error) {
     console.error("Error processing move:", error);
     return res.status(500).json({ error: "Error processing move" });
