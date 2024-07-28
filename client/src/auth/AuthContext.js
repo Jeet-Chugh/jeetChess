@@ -65,12 +65,16 @@ const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (updatedUserData) => {
+    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
+  };
+
   if (loading) {
     return <div>Loading...</div>; // Change eventually
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

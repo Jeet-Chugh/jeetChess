@@ -51,7 +51,7 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-99 py-10 bg-[#1e2124] text-white">
+    <div className="flex flex-col min-h-99 py-10 bg-gray-800 text-white">
       <div className="flex-grow flex items-center justify">
         <div className="flex items-start justify-between w-full" style={{ paddingLeft: sideSpace, paddingRight: sideSpace }}>
           <div className="flex flex-col items-start">

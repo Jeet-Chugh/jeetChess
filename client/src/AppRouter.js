@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Game from './components/Game';
 import Navbar from './components/Navbar';
+import Settings from './components/Settings';
 
 const AppRouter = () => {
   return (
@@ -14,6 +15,7 @@ const AppRouter = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/game" element={<Game />} />
         <Route path="/game/:gameID" element={<Game />} />
       </Routes>

@@ -54,9 +54,6 @@ const Login = () => {
             <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="mr-2" />
             Remember me
           </label>
-          <a href="/forgot-password" className="text-sm text-gray-400 hover:underline">
-            Forgot Password?
-          </a>
         </div>
         <button type="submit" className="w-full py-2 bg-green-500 hover:bg-green-600 rounded text-white font-semibold">
           Log In

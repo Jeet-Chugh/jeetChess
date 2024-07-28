@@ -29,27 +29,20 @@ const Navbar = () => {
   return (
     <nav className="bg-gray-900 border-gray-700">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4 h-16">
-        <div className="flex items-center space-x-3 rtl:space-x-reverse">
-          <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="/logo.png" className="h-8" alt="Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
-              JeetChess
-            </span>
-          </Link>
-          <ul className="flex space-x-8 rtl:space-x-reverse">
+        <div className="flex items-baseline space-x-3 rtl:space-x-reverse">
+          <ul className="flex space-x-16 rtl:space-x-reverse">
             <li>
-              <Link
-                to="/"
-                className="block text-xl ml-3 py-2 px-3 text-white rounded md:text-green-500 md:p-0 hover:text-green-600"
-                aria-current="page"
-              >
-                Home
+              <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <img src="/logo.png" className="h-8" alt="Logo" />
+                <span className="self-center text-2xl font-semibold text-white">
+                  JeetChess
+                </span>
               </Link>
             </li>
             <li>
               <Link
                 to="/"
-                className="block text-xl ml-3 py-2 px-3 text-white rounded md:text-green-500 md:p-0 hover:text-green-600"
+                className="flex text-2xl px-4 text-white rounded md:text-green-500 md:p-0 hover:text-green-600"
                 aria-current="page"
               >
                 My Games
@@ -57,7 +50,7 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-        <div className="flex items-center h-full" id="navbar-multi-level">
+        <div className="flex items-center justify-center h-100" id="navbar-multi-level">
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -107,17 +100,17 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <div className="flex items-center py-2 space-x-2">
+            <div className="flex justify-center space-x-2 text-lg px-4">
               <Link
                 to="/login"
-                className="py-2.5 px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 h-10"
+                className="py-2.5 px-4 bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Login
               </Link>
-              <span>or</span>
+              <span className="py-2.5 text-lg">or</span>
               <Link
                 to="/register"
-                className="py-2.5 px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 h-10"
+                className="py-2.5 px-4 text-lg bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Create Account
               </Link>

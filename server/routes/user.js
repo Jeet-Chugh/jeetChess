@@ -2,8 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require("../middleware/authMiddleware");
 const router = express.Router();
-const dotenv = require('dotenv').config();
 
 // User registration
 router.post('/register', async (req, res) => {
@@ -101,6 +101,75 @@ router.post('/refresh-token', async (req, res) => {
     return res.status(200).json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
     return res.status(401).send('Invalid refresh token');
+  }
+});
+
+// Change username
+router.post('/change-username', auth, async (req, res) => {
+  try {
+    const { newUsername } = req.body;
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Check if the new username is already taken
+    const existingUser = await User.findOne({ username: newUsername });
+    if (existingUser) {
+      return res.status(400).send('Username already exists');
+    }
+
+    user.username = newUsername;
+    await user.save();
+
+    res.status(200).send('Username updated successfully');
+  } catch (error) {
+    console.error('Error changing username:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// Change password
+router.post('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).send('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).send('Password changed successfully');
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// Delete account
+router.delete('/delete-account', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    await User.findByIdAndDelete(req.user.userId);
+    res.status(200).send('Account deleted successfully');
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).send('Server error');
   }
 });
 
