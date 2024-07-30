@@ -123,4 +123,8 @@ export const getUserByUsername = (username) => {
   return api.get(`/api/user/by-username/${username}`);
 };
 
+export const fetchUserGames = () => {
+  return api.get("/api/game/my-games");
+};
+
 export default api;

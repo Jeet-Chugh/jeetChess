@@ -105,7 +105,7 @@ const CreateGameDialog = ({ open, onClose, onGameCreated }) => {
         <button onClick={onClose} className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
           Cancel
         </button>
-        <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        <button onClick={handleSubmit} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
           Create Game
         </button>
       </DialogActions>

@@ -2,6 +2,7 @@ const express = require("express");
 const auth = require("../middleware/authMiddleware");
 const Chess = require("chess.js").Chess;
 const Game = require("../models/Game");
+const User = require("../models/User");
 const router = express.Router();
 
 // start game
@@ -22,11 +23,48 @@ router.post("/start", auth, async (req, res) => {
 
   try {
     await newGame.save();
+    
+    // Add the game to both players' games array
+    await User.updateMany(
+      { _id: { $in: [w, b] } },
+      { $push: { games: newGame._id } }
+    );
+
     res.status(201).json(newGame);
     req.io.to(newGame._id.toString()).emit("gameStarted", newGame);
   } catch (error) {
     console.error("Error creating game:", error);
     res.status(500).json({ error: "Error creating game" });
+  }
+});
+
+router.get("/my-games", auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).populate({
+      path: 'games',
+      populate: { path: 'w b', select: 'username' },
+      options: { sort: { createdAt: -1 } }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const gamesWithDetails = user.games.map(game => {
+      const chess = new Chess(game.state);
+      return {
+        ...game.toObject(),
+        isUserWhite: game.w._id.toString() === userId,
+        opponent: game.w._id.toString() === userId ? game.b.username : game.w.username,
+        currentPosition: chess.fen(),
+      };
+    });
+
+    res.status(200).json(gamesWithDetails);
+  } catch (error) {
+    console.error("Error fetching user's games:", error);
+    res.status(500).json({ error: "Error fetching games" });
   }
 });
 
@@ -39,7 +77,7 @@ router.get("/:gameID", async (req, res) => {
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
-    return res.status(200).json({...game, "turn": new Chess(game.state).turn()});
+    return res.status(200).json({...game.toObject(), "turn": new Chess(game.state).turn()});
   } catch (error) {
     console.error("Error fetching game:", error);
     return res.status(500).json({ error: "Error fetching game" });
@@ -61,6 +99,9 @@ router.post("/move", auth, async (req, res) => {
       return res.status(404).json({ error: "Game not found" });
     }
 
+    if (game.result !== "n") {
+      return res.status(403).json({ error: "Game is already over" })
+    }
     const chess = new Chess(game.state);
     const turn = chess.turn(); // 'w' for white, 'b' for black
     const currentUser = req.user.userId; // from auth middleware

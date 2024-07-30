@@ -40,13 +40,24 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
+              <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <span className="self-center text-2xl font-semibold text-white">
+                  Play
+                </span>
+              </Link>
+            </li>
+            <li>
+            { user ? (
+            <li>
               <Link
-                to="/"
-                className="flex text-2xl px-4 text-white rounded md:text-green-500 md:p-0 hover:text-green-600"
+                to="/my-games"
+                className="self-center text-2xl font-semibold text-white"
                 aria-current="page"
               >
                 My Games
               </Link>
+            </li> 
+          ) : (<></>) }
             </li>
           </ul>
         </div>

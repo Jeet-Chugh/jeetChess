@@ -6,6 +6,7 @@ import Register from './components/Register';
 import Game from './components/Game';
 import Navbar from './components/Navbar';
 import Settings from './components/Settings';
+import MyGames from './components/MyGames';
 
 const AppRouter = () => {
   return (
@@ -18,6 +19,7 @@ const AppRouter = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/game" element={<Game />} />
         <Route path="/game/:gameID" element={<Game />} />
+        <Route path="/my-games" element={<MyGames />} />
       </Routes>
     </Router>
   );
