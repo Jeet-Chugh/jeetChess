@@ -1,4 +1,4 @@
-# General
+# Temp files
 .DS_Store
 
 # Logs
@@ -11,3 +11,6 @@ npm-debug.log*
 
 # editor
 .vscode
+
+# Modules
+node_modules/
