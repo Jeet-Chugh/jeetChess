@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { AuthContext } from '../auth/AuthContext';
-import { createGame, getUserByUsername } from '../services/api';
+import { getUserByUsername, createGame } from '../services/api';
 
 const CreateGameDialog = ({ open, onClose, onGameCreated }) => {
   const [opponent, setOpponent] = useState('');

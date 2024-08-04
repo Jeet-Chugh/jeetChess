@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { setAuthToken, refreshToken } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 
@@ -8,25 +8,58 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const getStorageType = useCallback(() => {
+    return localStorage.getItem('accessToken') ? localStorage : sessionStorage;
+  }, []);
+
+  const setAuthState = useCallback((accessToken, refreshTokenValue, rememberMe) => {
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('accessToken', accessToken);
+    storage.setItem('refreshToken', refreshTokenValue);
+    setAuthToken(accessToken);
+    const decodedToken = jwtDecode(accessToken);
+    setUser({
+      id: decodedToken.userId,
+      username: decodedToken.username,
+      email: decodedToken.email,
+    });
+  }, []);
+
+  const login = useCallback((accessToken, refreshTokenValue, rememberMe) => {
+    setAuthState(accessToken, refreshTokenValue, rememberMe);
+  }, [setAuthState]);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    setAuthToken(null);
+    setUser(null);
+  }, []);
+
+  const updateUser = useCallback((updatedUserData) => {
+    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
+  }, []);
+
   useEffect(() => {
     const initAuth = async () => {
-      const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-      const refreshTokenValue = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
+      const storage = getStorageType();
+      const accessToken = storage.getItem('accessToken');
+      const refreshTokenValue = storage.getItem('refreshToken');
       
       if (accessToken && refreshTokenValue) {
         try {
           const decodedToken = jwtDecode(accessToken);
           if (Date.now() >= decodedToken.exp * 1000) {
-            // Access token expired
             const newTokens = await refreshToken(refreshTokenValue);
             if (newTokens) {
-              setAuthState(newTokens.accessToken, newTokens.refreshToken, localStorage.getItem('accessToken') !== null);
+              setAuthState(newTokens.accessToken, newTokens.refreshToken, storage === localStorage);
             } else {
               logout();
             }
           } else {
-            // Access token is still valid
-            setAuthState(accessToken, refreshTokenValue, localStorage.getItem('accessToken') !== null);
+            setAuthState(accessToken, refreshTokenValue, storage === localStorage);
           }
         } catch (error) {
           console.error('Error initializing auth:', error);
@@ -37,40 +70,10 @@ const AuthProvider = ({ children }) => {
     };
 
     initAuth();
-  }, []);
-
-  const setAuthState = (accessToken, refreshToken, rememberMe) => {
-    const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem('accessToken', accessToken);
-    storage.setItem('refreshToken', refreshToken);
-    setAuthToken(accessToken);
-    const decodedToken = jwtDecode(accessToken);
-    setUser({
-      id: decodedToken.userId,
-      username: decodedToken.username,
-      email: decodedToken.email,
-    });
-  };
-
-  const login = async (accessToken, refreshToken, rememberMe) => {
-    setAuthState(accessToken, refreshToken, rememberMe);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-    setAuthToken(null);
-    setUser(null);
-  };
-
-  const updateUser = (updatedUserData) => {
-    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
-  };
+  }, [setAuthState, logout, getStorageType]);
 
   if (loading) {
-    return <div>Loading...</div>; // Change eventually
+    return <div>Loading...</div>;
   }
 
   return (

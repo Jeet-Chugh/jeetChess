@@ -1,11 +1,12 @@
 const express = require("express");
 const auth = require("../middleware/authMiddleware");
-const Chess = require("chess.js").Chess;
+const { Chess } = require("chess.js");
 const Game = require("../models/Game");
 const User = require("../models/User");
 const router = express.Router();
 
-// start game
+const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 router.post("/start", auth, async (req, res) => {
   const { w, b } = req.body;
 
@@ -13,18 +14,10 @@ router.post("/start", auth, async (req, res) => {
     return res.status(400).json({ error: "Invalid players input" });
   }
 
-  const state = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const newGame = new Game({
-    w, 
-    b,
-    state,
-    moves: []
-  });
+  const newGame = new Game({ w, b, state: INITIAL_FEN, moves: [] });
 
   try {
     await newGame.save();
-    
-    // Add the game to both players' games array
     await User.updateMany(
       { _id: { $in: [w, b] } },
       { $push: { games: newGame._id } }
@@ -68,23 +61,22 @@ router.get("/my-games", auth, async (req, res) => {
   }
 });
 
-// game lookup
 router.get("/:gameID", async (req, res) => {
   try {
-    const { gameID } = req.params;
-    const game = await Game.findById(gameID).populate('w b');
+    const game = await Game.findById(req.params.gameID).populate('w b');
 
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
-    return res.status(200).json({...game.toObject(), "turn": new Chess(game.state).turn()});
+
+    const chess = new Chess(game.state);
+    return res.status(200).json({ ...game.toObject(), turn: chess.turn() });
   } catch (error) {
     console.error("Error fetching game:", error);
     return res.status(500).json({ error: "Error fetching game" });
   }
 });
 
-// make a move
 router.post("/move", auth, async (req, res) => {
   const { gameID, move } = req.body;
 
@@ -100,39 +92,30 @@ router.post("/move", auth, async (req, res) => {
     }
 
     if (game.result !== "n") {
-      return res.status(403).json({ error: "Game is already over" })
+      return res.status(403).json({ error: "Game is already over" });
     }
+
     const chess = new Chess(game.state);
-    const turn = chess.turn(); // 'w' for white, 'b' for black
-    const currentUser = req.user.userId; // from auth middleware
+    const turn = chess.turn();
+    const currentUser = req.user.userId;
 
-    console.log(game);
-
-    // Check if the current user is one of the players
-    if (game.w.toString() !== currentUser && game.b.toString() !== currentUser) {
-      return res.status(403).json({ error: "Not a player in this game" });
-    }
-
-    // Check if it's the current player's turn
-    if ((turn === 'w' && game.w.toString() !== currentUser) || 
-        (turn === 'b' && game.b.toString() !== currentUser)) {
+    if (!isPlayerTurn(game, currentUser, turn)) {
       return res.status(403).json({ error: "Not your turn" });
     }
 
     const result = chess.move(move);
 
-    if (result === null) {
-      console.error("Invalid move attempted:", move);
+    if (!result) {
       return res.status(400).json({ error: "Invalid move" });
     }
 
     game.moves.push(result.san);
     game.state = chess.fen();
-    await game.save();
     game.lastMoveBy = currentUser;
+    await game.save();
 
     res.status(200).json(game);
-    req.io.to(gameID).emit("moveMade", {"game": game, "turn": chess.turn()});
+    req.io.to(gameID).emit("moveMade", { game, turn: chess.turn() });
   } catch (error) {
     console.error("Error processing move:", error);
     return res.status(500).json({ error: "Error processing move" });
@@ -150,7 +133,7 @@ router.post("/:gameID/resign", auth, async (req, res) => {
       return res.status(404).json({ error: "Game not found" });
     }
 
-    if (game.w.toString() !== resigningUserId && game.b.toString() !== resigningUserId) {
+    if (!isPlayerInGame(game, resigningUserId)) {
       return res.status(403).json({ error: "Not a player in this game" });
     }
 
@@ -176,7 +159,7 @@ router.post("/:gameID/offer-draw", auth, async (req, res) => {
       return res.status(404).json({ error: "Game not found" });
     }
 
-    if (game.w.toString() !== offeringUserId && game.b.toString() !== offeringUserId) {
+    if (!isPlayerInGame(game, offeringUserId)) {
       return res.status(403).json({ error: "Not a player in this game" });
     }
 
@@ -202,7 +185,7 @@ router.post("/:gameID/accept-draw", auth, async (req, res) => {
       return res.status(404).json({ error: "Game not found" });
     }
 
-    if (game.w.toString() !== acceptingUserId && game.b.toString() !== acceptingUserId) {
+    if (!isPlayerInGame(game, acceptingUserId)) {
       return res.status(403).json({ error: "Not a player in this game" });
     }
 
@@ -221,5 +204,14 @@ router.post("/:gameID/accept-draw", auth, async (req, res) => {
     return res.status(500).json({ error: "Error processing draw acceptance" });
   }
 });
+
+function isPlayerTurn(game, userId, turn) {
+  return (turn === 'w' && game.w.toString() === userId) || 
+         (turn === 'b' && game.b.toString() === userId);
+}
+
+function isPlayerInGame(game, userId) {
+  return game.w.toString() === userId || game.b.toString() === userId;
+}
 
 module.exports = router;

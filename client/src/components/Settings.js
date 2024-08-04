@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../auth/AuthContext';
-import api from '../services/api';
+import { changeUsername, changePassword, deleteAccount } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
@@ -15,7 +15,7 @@ const Settings = () => {
   const handleUsernameChange = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/user/change-username', { newUsername });
+      await changeUsername(newUsername);
       updateUser({ username: newUsername });
       setMessage('Username updated successfully');
       setNewUsername('');
@@ -31,7 +31,7 @@ const Settings = () => {
       return;
     }
     try {
-      await api.post('/api/user/change-password', { currentPassword, newPassword });
+      await changePassword(currentPassword, newPassword);
       setMessage('Password changed successfully');
       setCurrentPassword('');
       setNewPassword('');
@@ -44,7 +44,7 @@ const Settings = () => {
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
-        await api.delete('/api/user/delete-account');
+        await deleteAccount();
         logout();
         navigate('/');
       } catch (error) {

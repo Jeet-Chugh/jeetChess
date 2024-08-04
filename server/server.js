@@ -1,68 +1,76 @@
-const { createServer } = require('http')
-const cors = require('cors')
+const { createServer } = require('http');
+const cors = require('cors');
 const express = require('express');
-const { Server } = require('socket.io')
-
+const { Server } = require('socket.io');
 const mongoose = require('mongoose');
-const path = require('path');
 require('dotenv').config();
 
-// setup and create http server with express
+const gameRouter = require('./routes/game');
+const userRouter = require('./routes/user');
+
 const app = express();
-app.use(cors())
-app.use(express.json());
-const httpServer = createServer(app)
+const httpServer = createServer(app);
+const io = setupSocketIO(httpServer);
 
-// connect socket.io to http server
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*", // eventually change to client server
-    methods: ['GET', 'POST']
-  }
-});
+setupMiddleware(app, io);
+setupRoutes(app);
+setupSocketHandlers(io);
+connectToDatabase();
+startServer(httpServer);
 
-// Middleware to add io to req
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
-
-// Basic route
-app.get('/', (req, res) => {
-  res.send('Hello World');
-  console.log(req.headers)
-});
-
-// use predefined routes
-const gameRouter = require('./routes/game')
-const userRouter = require('./routes/user')
-app.use('/api/game', gameRouter)
-app.use('/api/user', userRouter)
-
-// socket.io connection
-io.on('connection', (socket) => {
-  console.log("Connected to socket!")
-
-  socket.on("declineDraw", (gameID) => {
-    io.to(gameID).emit("drawReset");
+function setupSocketIO(httpServer) {
+  return new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ['GET', 'POST']
+    }
   });
+}
 
-  socket.on("joinGame", (gameID) => {
-    socket.join(gameID);
+function setupMiddleware(app, io) {
+  app.use(cors());
+  app.use(express.json());
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
   });
+}
 
-  socket.on('disconnect', () => {
-    console.log("Disconnected from socket.")
+function setupRoutes(app) {
+  app.get('/', (req, res) => {
+    res.send('Hello World');
   });
-});
+  app.use('/api/game', gameRouter);
+  app.use('/api/user', userRouter);
+}
 
-// host server
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+function setupSocketHandlers(io) {
+  io.on('connection', (socket) => {
+    console.log("Connected to socket!");
+
+    socket.on("declineDraw", (gameID) => {
+      io.to(gameID).emit("drawReset");
+    });
+
+    socket.on("joinGame", (gameID) => {
+      socket.join(gameID);
+    });
+
+    socket.on('disconnect', () => {
+      console.log("Disconnected from socket.");
+    });
+  });
+}
+
+function connectToDatabase() {
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+}
+
+function startServer(httpServer) {
+  const PORT = process.env.PORT || 5000;
+  httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
