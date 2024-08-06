@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
     setAuthToken(accessToken);
     const decodedToken = jwtDecode(accessToken);
     setUser({
-      id: decodedToken.userId,
+      id: decodedToken.id,
       username: decodedToken.username,
       email: decodedToken.email,
     });

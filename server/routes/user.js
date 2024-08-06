@@ -32,7 +32,11 @@ router.post('/login', async (req, res) => {
       return res.status(400).send('Invalid credentials');
     }
 
-    const accessToken = generateToken(user, process.env.ACCESS_TOKEN_SECRET, '15m');
+    const accessToken = generateToken({
+      username: user.username,
+      email: user.email,
+      id: user._id
+    }, process.env.ACCESS_TOKEN_SECRET, '15m');
     const refreshToken = generateToken({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, '7d');
 
     return res.status(200).json({ accessToken, refreshToken });
@@ -70,7 +74,12 @@ router.post('/refresh-token', async (req, res) => {
       return res.status(404).send('User not found');
     }
     
-    const accessToken = generateToken(user, process.env.ACCESS_TOKEN_SECRET, '15m');
+    const accessToken = generateToken({
+        username: user.username,
+        email: user.email,
+        id: user._id
+    },
+    process.env.ACCESS_TOKEN_SECRET, '15m');
     const newRefreshToken = generateToken({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, '7d');
     
     return res.status(200).json({ accessToken, refreshToken: newRefreshToken });
@@ -82,7 +91,7 @@ router.post('/refresh-token', async (req, res) => {
 router.post('/change-username', auth, async (req, res) => {
   try {
     const { newUsername } = req.body;
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).send('User not found');
@@ -106,7 +115,7 @@ router.post('/change-username', auth, async (req, res) => {
 router.post('/change-password', auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.id);
 
     if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
       return res.status(400).send('Current password is incorrect');
@@ -124,7 +133,7 @@ router.post('/change-password', auth, async (req, res) => {
 
 router.delete('/delete-account', auth, async (req, res) => {
   try {
-    const result = await User.findByIdAndDelete(req.user.userId);
+    const result = await User.findByIdAndDelete(req.user.id);
     if (!result) {
       return res.status(404).send('User not found');
     }

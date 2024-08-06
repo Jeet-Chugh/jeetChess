@@ -33,7 +33,7 @@ router.post("/start", auth, async (req, res) => {
 
 router.get("/my-games", auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     const user = await User.findById(userId).populate({
       path: 'games',
       populate: { path: 'w b', select: 'username' },
@@ -97,7 +97,7 @@ router.post("/move", auth, async (req, res) => {
 
     const chess = new Chess(game.state);
     const turn = chess.turn();
-    const currentUser = req.user.userId;
+    const currentUser = req.user.id;
 
     if (!isPlayerTurn(game, currentUser, turn)) {
       return res.status(403).json({ error: "Not your turn" });
@@ -124,7 +124,7 @@ router.post("/move", auth, async (req, res) => {
 
 router.post("/:gameID/resign", auth, async (req, res) => {
   const { gameID } = req.params;
-  const resigningUserId = req.user.userId;
+  const resigningUserId = req.user.id;
 
   try {
     const game = await Game.findById(gameID);
@@ -150,7 +150,7 @@ router.post("/:gameID/resign", auth, async (req, res) => {
 
 router.post("/:gameID/offer-draw", auth, async (req, res) => {
   const { gameID } = req.params;
-  const offeringUserId = req.user.userId;
+  const offeringUserId = req.user.id;
 
   try {
     const game = await Game.findById(gameID);
@@ -176,7 +176,7 @@ router.post("/:gameID/offer-draw", auth, async (req, res) => {
 
 router.post("/:gameID/accept-draw", auth, async (req, res) => {
   const { gameID } = req.params;
-  const acceptingUserId = req.user.userId;
+  const acceptingUserId = req.user.id;
 
   try {
     const game = await Game.findById(gameID);
