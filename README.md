@@ -3,7 +3,7 @@
 
 Multiplayer chess site built with MongoDB, Express, React, Node, and Tailwind.
 
-<img src="client/public/screenshot.png" width="555" height="380" ></img>
+<img src="client/public/screenshot.png" width="476" height="400" ></img>
 
 ## Features
 
