@@ -88,7 +88,7 @@ jeetchess/
 ```
 
 ## License
- [MIT](LICENSE.md)
+ [MIT](LICENSE)
 
 ## Acknowledgements
  Special thanks to the contributors behind Chess.js, react-chessboard, and MaterialUI!
